@@ -10,6 +10,7 @@ What does it do?
 - [ ] Store into H2 Database
 - [ ] MultiUser inputs
 - [ ] Cleaner Looking Json
+- [ ] Some UI maaaaaaybe
 
 ### How to use?
 In gitbash run these commands:
