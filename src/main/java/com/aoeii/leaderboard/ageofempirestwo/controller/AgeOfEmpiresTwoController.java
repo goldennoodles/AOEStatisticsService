@@ -87,4 +87,10 @@ public class AgeOfEmpiresTwoController {
 
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
+
+    @GetMapping("/api")
+    public ResponseEntity<Object> ReturnAPIInformationToUser () {
+        ResponseEntity<String> loadedString = restTemplate.getForEntity(properties.RETURN_ALL_LOBBIES, String.class);
+        return new ResponseEntity<>(loadedString, HttpStatus.OK);
+    }
 }
