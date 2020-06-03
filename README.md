@@ -20,4 +20,4 @@ then
 
 ### To get the DATA:
 In a Web Browser:
-`localhost:8080/getData`
+`localhost:8080/getData?user=<SteamID>`
