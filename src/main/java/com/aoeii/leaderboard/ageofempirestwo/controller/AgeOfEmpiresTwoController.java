@@ -1,9 +1,11 @@
 package com.aoeii.leaderboard.ageofempirestwo.controller;
 
+import com.aoeii.leaderboard.ageofempirestwo.model.PlayerHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.properties.ApplicationProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
+/*
+    Quick Note: Mapping doesn't currently work and dont have the brain power to figure out why...
+    TODO: Drink lesss G&T;s.
+ */
 
 @Component
 @RestController
@@ -33,35 +39,52 @@ public class AgeOfEmpiresTwoController {
     @Autowired
     ObjectMapper objectMapper;
 
-    @GetMapping("/getData")
-    public String getAOEData (@RequestParam String user) {
+    @GetMapping("/get-data")
+    public ResponseEntity<Object> GetAOEData (@RequestParam String user) {
         try {
             properties.setAOE_USER(user);
             log.info("User is now: " + properties.getAOE_USER());
+
             ResponseEntity<String> loadedString = restTemplate.getForEntity(
                     properties.PLAYER_MATCH_HISTORY +
                             properties.getAOE_USER() +
                             properties.getMATCH_COUNT(), String.class);
+
             Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
+            List<PlayerHistoryModel> PlayerStats = JsonPath.read(parsedResults, "$..players");
 
-            List<String> PlayerStats = JsonPath.read(parsedResults, "$..players");
-//            List<String> MatchStats = JsonPath.read(parsedResults, "$..*");
-
-            return "//======= Player Stats =========" + "\n"
-                    + PlayerStats;
+            return new ResponseEntity<>(PlayerStats, HttpStatus.OK);
 
         } catch (HttpClientErrorException ex) {
-            return ex.getMessage();
+            return new ResponseEntity<>(ex, HttpStatus.I_AM_A_TEAPOT);
         }
     }
 
-    @GetMapping("/addUser")
-    public String addAOEUser (@RequestParam String user) {
-        return null;
+    @GetMapping("/player-ranking")
+    public ResponseEntity<Object> GetPlayerRankingHistory (@RequestParam String user) {
+        properties.setAOE_USER(user);
+        ResponseEntity<String> loadedString = restTemplate.getForEntity(
+                properties.PLAYER_RANKING_HISTORY +
+                        properties.getAOE_USER() +
+                        properties.getMATCH_COUNT(), String.class);
+
+        Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
+        List<String> playerRanking = JsonPath.read(parsedResults, "$..*");
+
+        return new ResponseEntity<>(playerRanking, HttpStatus.OK);
     }
 
-    @GetMapping("/clearusers")
-    public ResponseEntity<String> clearUsers () {
-        return new ResponseEntity<String>("OK", HttpStatus.OK);
+    /*
+        This doesn't work correctly , but will probs fix later.. Not entirely sure why they're returning all users
+        with different counts.... Weird
+     */
+    @GetMapping("/player-count")
+    public ResponseEntity<Object> PlayersCurrentlyOnline () {
+        ResponseEntity<String> loadedString = restTemplate.getForEntity(properties.getPLAYER_ONLINE_GAME_COUNT(), String.class);
+
+        Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
+        List<String> results = JsonPath.parse(parsedResults).read("$..num_players");
+
+        return new ResponseEntity<>(results, HttpStatus.OK);
     }
 }
