@@ -34,18 +34,21 @@ public class AgeOfEmpiresTwoController {
     ObjectMapper objectMapper;
 
     @GetMapping("/getData")
-    public String getAOEData () {
+    public String getAOEData (@RequestParam String user) {
         try {
-            ResponseEntity<String> loadedString = restTemplate.getForEntity(properties.PLAYER_MATCH_HISTORY, String.class);
+            properties.setAOE_USER(user);
+            log.info("User is now: " + properties.getAOE_USER());
+            ResponseEntity<String> loadedString = restTemplate.getForEntity(
+                    properties.PLAYER_MATCH_HISTORY +
+                            properties.getAOE_USER() +
+                            properties.getMATCH_COUNT(), String.class);
             Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
 
             List<String> PlayerStats = JsonPath.read(parsedResults, "$..players");
-            List<String> MatchStats = JsonPath.read(parsedResults, "$..*");
+//            List<String> MatchStats = JsonPath.read(parsedResults, "$..*");
 
             return "//======= Player Stats =========" + "\n"
-                    + PlayerStats +
-                    "//======= Match Stats ==========" + "\n"
-                    + MatchStats + "\n";
+                    + PlayerStats;
 
         } catch (HttpClientErrorException ex) {
             return ex.getMessage();
