@@ -9,6 +9,7 @@ What does it do?
 - [x] Steam ID user specific
 - [ ] Store into H2 Database
 - [ ] MultiUser inputs
+- [ ] Cleaner Looking Json
 
 ### How to use?
 In gitbash run these commands:
