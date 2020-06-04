@@ -1,9 +1,7 @@
 package com.aoeii.leaderboard.ageofempirestwo.repo;
 
 import com.aoeii.leaderboard.ageofempirestwo.model.PlayerHistoryModel;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
