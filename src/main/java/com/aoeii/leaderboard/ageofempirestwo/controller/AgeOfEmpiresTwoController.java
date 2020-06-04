@@ -24,6 +24,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -46,30 +47,42 @@ public class AgeOfEmpiresTwoController {
     @Autowired
     ObjectMapper objectMapper;
 
+    /**
+     * Get the Player Data from AOE2:DE servers
+     * @param user
+     * @return
+     * @throws JsonProcessingException
+     */
     @GetMapping("/get-data")
     public ResponseEntity<Object> GetAOEData (@RequestParam String user) throws JsonProcessingException {
         try {
+            // Assign the user
             properties.setAOE_USER(user);
             log.info("User is now: " + properties.getAOE_USER());
 
+            //Load up the string from the AOE2:DE servers based on 'USER'.
             ResponseEntity<String> loadedString = restTemplate.getForEntity(
                     properties.PLAYER_MATCH_HISTORY +
                             properties.getAOE_USER() +
                             properties.getMATCH_COUNT(), String.class);
 
+            //Parse the String and load up the JSON Array with the DATA.
             Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
             List<JSONArray> PlayerStats = JsonPath.read(parsedResults, "$..players");
 
+            //Create LocalList to hold accessible PlayerHistoryModel Data.
             List<PlayerHistoryModel> modelList = new ArrayList<>();
+
+            // Do the mapping and adding to LocalList.
             for (JSONArray model : PlayerStats) {
                 PlayerHistoryModel[] kl = objectMapper.readValue(model.toJSONString(), PlayerHistoryModel[].class);
-
-                for(int i = 0; i < model.size(); i++)
-                    modelList.add(kl[i]);
+                modelList.addAll(Arrays.asList(kl));
             }
 
+            //Return output back up the the user with an OK statement!
             return new ResponseEntity<>(modelList, HttpStatus.OK);
 
+            //I AM A TEAPOT....
         } catch (HttpClientErrorException ex) {
             return new ResponseEntity<>(ex, HttpStatus.I_AM_A_TEAPOT);
         }
