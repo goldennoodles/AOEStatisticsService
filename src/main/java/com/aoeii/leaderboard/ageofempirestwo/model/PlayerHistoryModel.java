@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlayerHistoryModel {
     @JsonProperty("steam_id")
-    public String STEAM_ID;
+    private String STEAM_ID;
     @JsonProperty("name")
-    public String NAME;
+    private String NAME;
     @JsonProperty("country")
-    public String COUNTRY;
+    private String COUNTRY;
     @JsonProperty("rating")
-    public int RATING;
+    private int RATING;
     @JsonProperty("won")
-    public String WIN_LOSS_STATEMENT;
+    private String WIN_LOSS_STATEMENT;
 
 }

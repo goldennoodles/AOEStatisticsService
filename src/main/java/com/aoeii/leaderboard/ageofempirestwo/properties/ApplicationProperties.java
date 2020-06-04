@@ -2,21 +2,34 @@ package com.aoeii.leaderboard.ageofempirestwo.properties;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 
 @Getter
 @Setter
 @Component
+@ConfigurationProperties
 public class ApplicationProperties {
 
-    public String AOE_USER = ""; // Make Dynamic (Current : Me)
-    public String MATCH_COUNT = "&count=5";
-    public String PLAYER_MATCH_HISTORY = "https://aoe2.net/api/player/matches?game=aoe2de&steam_id=";
-    public final String FULL_PLAYER_MATCH_HISTORY_URL = "https://aoe2.net/api/player/matches?game=aoe2de&steam_id=76561198048932097&count=5";
-    public final String PLAYER_ONLINE_GAME_COUNT = "https://aoe2.net/api/stats/players?game=aoe2de";
-    public final String PLAYER_RANKING_HISTORY = "https://aoe2.net/api/player/ratinghistory?game=aoe2de&leaderboard_id=4&steam_id=";
-    public final String RETURN_ALL_LOBBIES = "https://aoe2.net/api/lobbies?game=aoe2de";
+    @Value("${endpoints.aoe.user}")
+    private String AOE_USER;
+
+    @Value("${endpoints.aoe.match_count}")
+    private String MATCH_COUNT;
+
+    @Value("${endpoints.aoe.player_match_history}")
+    private String PLAYER_MATCH_HISTORY;
+
+    @Value("${endpoints.aoe.player_online_count}")
+    private String PLAYER_ONLINE_GAME_COUNT;
+
+    @Value("${endpoints.aoe.player_ranking_history}")
+    private String PLAYER_RANKING_HISTORY;
+
+    @Value("${endpoints.aoe.return_all_lobbies}")
+    private String RETURN_ALL_LOBBIES;
     /*
         Jahan = 76561197989421548
         Hayden = 76561198080895557

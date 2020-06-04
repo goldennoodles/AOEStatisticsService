@@ -1,0 +1,14 @@
+spring:
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+
+endpoints:
+  aoe:
+    user: ""
+    match_count: &count=5
+    player_match_history: "https://aoe2.net/api/player/matches?game=aoe2de&steam_id="
+    player_ranking_history: "https://aoe2.net/api/player/ratinghistory?game=aoe2de&leaderboard_id=4&steam_id="
+    player_online_count: "https://aoe2.net/api/stats/players?game=aoe2de"
+    return_all_lobbies: "https://aoe2.net/api/lobbies?game=aoe2de"
+

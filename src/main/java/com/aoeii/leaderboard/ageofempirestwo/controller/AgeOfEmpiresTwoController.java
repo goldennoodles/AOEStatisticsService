@@ -1,14 +1,19 @@
 package com.aoeii.leaderboard.ageofempirestwo.controller;
 
+import com.aoeii.leaderboard.ageofempirestwo.model.MatchHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.model.PlayerHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.properties.ApplicationProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import jdk.tools.jlink.internal.ResourcePoolManager;
+import lombok.var;
 import net.minidev.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,9 +55,9 @@ public class AgeOfEmpiresTwoController {
 
     /**
      * Get the Player Data from AOE2:DE servers
-     * @param user
-     * @return
-     * @throws JsonProcessingException
+     * @param user - Input from @GetMapping
+     * @return ResponseEntity<Object>
+     * @throws JsonProcessingException JPE
      */
     @GetMapping("/get-data")
     public ResponseEntity<Object> GetAOEData (@RequestParam String user) throws JsonProcessingException {
@@ -60,27 +66,47 @@ public class AgeOfEmpiresTwoController {
             properties.setAOE_USER(user);
             log.info("User is now: " + properties.getAOE_USER());
 
+            //Local Method String URL holder.
+            String URI = properties.getPLAYER_MATCH_HISTORY() +
+                    properties.getAOE_USER() +
+                    properties.getMATCH_COUNT();
+            log.info(URI);
+
             //Load up the string from the AOE2:DE servers based on 'USER'.
-            ResponseEntity<String> loadedString = restTemplate.getForEntity(
-                    properties.PLAYER_MATCH_HISTORY +
-                            properties.getAOE_USER() +
-                            properties.getMATCH_COUNT(), String.class);
+            ResponseEntity<String> loadedString = restTemplate.getForEntity(URI, String.class);
 
-            //Parse the String and load up the JSON Array with the DATA.
+            //Parse the String
             Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
-            List<JSONArray> PlayerStats = JsonPath.read(parsedResults, "$..players");
 
-            //Create LocalList to hold accessible PlayerHistoryModel Data.
-            List<PlayerHistoryModel> modelList = new ArrayList<>();
+            //Read the Json and Filter
+            List<JSONArray> playerStats = JsonPath.read(parsedResults, "$..players");
+            List<MatchHistoryModel> matchHistoryModels = objectMapper.readValue(loadedString.getBody(), new TypeReference<List<MatchHistoryModel>>(){});
 
-            // Do the mapping and adding to LocalList.
-            for (JSONArray model : PlayerStats) {
-                PlayerHistoryModel[] kl = objectMapper.readValue(model.toJSONString(), PlayerHistoryModel[].class);
-                modelList.addAll(Arrays.asList(kl));
+            //Create LocalLists to hold accessible Model Data.
+            List<PlayerHistoryModel> playerHistoryModelList = new ArrayList<>();
+            List<MatchHistoryModel> matchHistoryModelList = new ArrayList<>();
+
+            // Do the mapping and adding to LocalLists.
+            for (JSONArray model : playerStats) {
+                PlayerHistoryModel[] phm = objectMapper.readValue(model.toJSONString(), PlayerHistoryModel[].class);
+                playerHistoryModelList.addAll(Arrays.asList(phm));
+            }
+            for (MatchHistoryModel model : matchHistoryModels){
+                matchHistoryModelList.addAll(Arrays.asList(model));
             }
 
+            // Just Return some data for now, but soone will go into database and querying will start.
+            var toReturn = playerHistoryModelList.get(0).getNAME() +
+                    "\n" + matchHistoryModelList.get(0).getSERVER() +
+                    "\n" + playerHistoryModelList.get(0).getRATING() +
+                    "\n" + playerHistoryModelList.get(0).getWIN_LOSS_STATEMENT() +
+                    "\n" + playerHistoryModelList.get(1).getNAME() +
+                    "\n" + matchHistoryModelList.get(1).getSERVER() +
+                    "\n" + playerHistoryModelList.get(1).getRATING() +
+                    "\n" + playerHistoryModelList.get(1).getWIN_LOSS_STATEMENT();
+
             //Return output back up the the user with an OK statement!
-            return new ResponseEntity<>(modelList, HttpStatus.OK);
+            return new ResponseEntity<>(toReturn, HttpStatus.OK);
 
             //I AM A TEAPOT....
         } catch (HttpClientErrorException ex) {
@@ -88,11 +114,16 @@ public class AgeOfEmpiresTwoController {
         }
     }
 
+    /**
+     * Ignore the stuff below for now, may end up scrapping it.
+     * @param user
+     * @return
+     */
     @GetMapping("/player-ranking")
     public ResponseEntity<Object> GetPlayerRankingHistory (@RequestParam String user) {
         properties.setAOE_USER(user);
         ResponseEntity<String> loadedString = restTemplate.getForEntity(
-                properties.PLAYER_RANKING_HISTORY +
+                properties.getPLAYER_RANKING_HISTORY() +
                         properties.getAOE_USER() +
                         properties.getMATCH_COUNT(), String.class);
 
@@ -118,7 +149,7 @@ public class AgeOfEmpiresTwoController {
 
     @GetMapping("/api")
     public ResponseEntity<Object> ReturnAPIInformationToUser () {
-        ResponseEntity<String> loadedString = restTemplate.getForEntity(properties.RETURN_ALL_LOBBIES, String.class);
+        ResponseEntity<String> loadedString = restTemplate.getForEntity(properties.getRETURN_ALL_LOBBIES(), String.class);
         return new ResponseEntity<>(loadedString, HttpStatus.OK);
     }
 }
