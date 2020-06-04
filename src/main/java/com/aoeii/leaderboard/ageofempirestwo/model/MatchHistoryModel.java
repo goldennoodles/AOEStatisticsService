@@ -6,13 +6,20 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
+
 @Getter
 @Setter
 @Component
+@Table(name = "matchdata")
+@Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MatchHistoryModel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long ID;
     @JsonProperty("match_id")
-    private Integer MATCH_ID;
+    private Long MATCH_ID;
     @JsonProperty("server")
     private String SERVER;
     @JsonProperty("match_uuid")

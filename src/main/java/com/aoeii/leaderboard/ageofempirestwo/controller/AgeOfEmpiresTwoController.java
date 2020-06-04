@@ -3,13 +3,13 @@ package com.aoeii.leaderboard.ageofempirestwo.controller;
 import com.aoeii.leaderboard.ageofempirestwo.model.MatchHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.model.PlayerHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.properties.ApplicationProperties;
-import com.aoeii.leaderboard.ageofempirestwo.repo.AOERepository;
+import com.aoeii.leaderboard.ageofempirestwo.repo.AOEMatchRespository;
+import com.aoeii.leaderboard.ageofempirestwo.repo.AOEPlayerRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import lombok.var;
 import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -43,7 +44,9 @@ public class AgeOfEmpiresTwoController {
     ObjectMapper objectMapper;
 
     @Autowired
-    AOERepository aoeRepository;
+    AOEPlayerRepository playerRepository;
+    @Autowired
+    AOEMatchRespository matchRespository;
 
     /**
      * Get the Player Data from AOE2:DE servers
@@ -88,26 +91,18 @@ public class AgeOfEmpiresTwoController {
             }
 
             //Iterate through the list and save to database.
-            for (PlayerHistoryModel mod : playerHistoryModelList){
-                aoeRepository.save(mod);
+            for (PlayerHistoryModel playerHistoryModel : playerHistoryModelList){
+                for(MatchHistoryModel matchHistoryModel : matchHistoryModelList){
+                    matchRespository.save(matchHistoryModel);
+                }
+                playerRepository.save(playerHistoryModel);
             }
-
-            // Just Return some data for now, but soone will go into database and querying will start.
-            var toReturn = playerHistoryModelList.get(0).getNAME() +
-                    "\n" + matchHistoryModelList.get(0).getSERVER() +
-                    "\n" + playerHistoryModelList.get(0).getRATING() +
-                    "\n" + playerHistoryModelList.get(0).getWIN_LOSS_STATEMENT() +
-                    "\n" + playerHistoryModelList.get(1).getNAME() +
-                    "\n" + matchHistoryModelList.get(1).getSERVER() +
-                    "\n" + playerHistoryModelList.get(1).getRATING() +
-                    "\n" + playerHistoryModelList.get(1).getWIN_LOSS_STATEMENT();
-
             //Return output back up the the user with an OK statement!
-            return new ResponseEntity<>(toReturn, HttpStatus.OK);
+            return new ResponseEntity<>("Data Saved... Access H2 Console to view", HttpStatus.OK);
 
             //I AM A TEAPOT....
         } catch (HttpClientErrorException ex) {
-            return new ResponseEntity<>(ex, HttpStatus.I_AM_A_TEAPOT);
+            return new ResponseEntity<>(ex + " Error: Data Not Saved...", HttpStatus.I_AM_A_TEAPOT);
         }
     }
 

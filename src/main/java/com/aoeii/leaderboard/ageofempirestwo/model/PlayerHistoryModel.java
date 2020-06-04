@@ -27,6 +27,7 @@ public class PlayerHistoryModel {
     @JsonProperty("rating")
     private int RATING;
     @JsonProperty("won")
-    private String WIN_LOSS_STATEMENT;
+    private String WIN_STATEMENT;
+    private String MATCH_UI;
 
 }
