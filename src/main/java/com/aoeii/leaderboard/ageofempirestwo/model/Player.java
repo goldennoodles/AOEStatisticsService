@@ -1,32 +1,28 @@
 package com.aoeii.leaderboard.ageofempirestwo.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Getter
 @Setter
-@Component
+@Data
+@NoArgsConstructor
 @Entity
-@Table(name = "playerdata")
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class PlayerHistoryModel {
+public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long U_ID;
-    @JsonProperty("steam_id")
     private String STEAM_ID;
-    @JsonProperty("name")
     private String NAME;
-    @JsonProperty("country")
     private String COUNTRY;
-    @JsonProperty("rating")
     private int RATING;
-    @JsonProperty("won")
     private String WIN_LOSS_STATEMENT;
-
 }
