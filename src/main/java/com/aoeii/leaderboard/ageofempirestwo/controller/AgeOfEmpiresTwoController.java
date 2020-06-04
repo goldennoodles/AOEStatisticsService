@@ -2,9 +2,14 @@ package com.aoeii.leaderboard.ageofempirestwo.controller;
 
 import com.aoeii.leaderboard.ageofempirestwo.model.PlayerHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.properties.ApplicationProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import jdk.tools.jlink.internal.ResourcePoolManager;
+import net.minidev.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -40,7 +47,7 @@ public class AgeOfEmpiresTwoController {
     ObjectMapper objectMapper;
 
     @GetMapping("/get-data")
-    public ResponseEntity<Object> GetAOEData (@RequestParam String user) {
+    public ResponseEntity<Object> GetAOEData (@RequestParam String user) throws JsonProcessingException {
         try {
             properties.setAOE_USER(user);
             log.info("User is now: " + properties.getAOE_USER());
@@ -51,9 +58,17 @@ public class AgeOfEmpiresTwoController {
                             properties.getMATCH_COUNT(), String.class);
 
             Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
-            List<PlayerHistoryModel> PlayerStats = JsonPath.read(parsedResults, "$..players");
+            List<JSONArray> PlayerStats = JsonPath.read(parsedResults, "$..players");
 
-            return new ResponseEntity<>(PlayerStats, HttpStatus.OK);
+            List<PlayerHistoryModel> modelList = new ArrayList<>();
+            for (JSONArray model : PlayerStats) {
+                PlayerHistoryModel[] kl = objectMapper.readValue(model.toJSONString(), PlayerHistoryModel[].class);
+
+                for(int i = 0; i < model.size(); i++)
+                    modelList.add(kl[i]);
+            }
+
+            return new ResponseEntity<>(modelList, HttpStatus.OK);
 
         } catch (HttpClientErrorException ex) {
             return new ResponseEntity<>(ex, HttpStatus.I_AM_A_TEAPOT);
