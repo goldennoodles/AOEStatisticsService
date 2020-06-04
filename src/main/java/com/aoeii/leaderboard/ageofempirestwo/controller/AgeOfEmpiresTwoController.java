@@ -3,6 +3,7 @@ package com.aoeii.leaderboard.ageofempirestwo.controller;
 import com.aoeii.leaderboard.ageofempirestwo.model.MatchHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.model.PlayerHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.properties.ApplicationProperties;
+import com.aoeii.leaderboard.ageofempirestwo.repo.AOERepository;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,11 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/*
-    Quick Note: Mapping doesn't currently work and dont have the brain power to figure out why...
-    TODO: Drink lesss G&T;s.
- */
-
 @Component
 @RestController
 public class AgeOfEmpiresTwoController {
@@ -52,6 +48,9 @@ public class AgeOfEmpiresTwoController {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    AOERepository aoeRepository;
 
     /**
      * Get the Player Data from AOE2:DE servers
@@ -93,6 +92,11 @@ public class AgeOfEmpiresTwoController {
             }
             for (MatchHistoryModel model : matchHistoryModels){
                 matchHistoryModelList.addAll(Arrays.asList(model));
+            }
+
+            //Iterate through the list and save to database.
+            for (PlayerHistoryModel mod : playerHistoryModelList){
+                aoeRepository.save(mod);
             }
 
             // Just Return some data for now, but soone will go into database and querying will start.
