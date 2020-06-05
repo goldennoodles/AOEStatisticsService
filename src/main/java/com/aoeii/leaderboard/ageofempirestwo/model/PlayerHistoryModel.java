@@ -16,7 +16,7 @@ import javax.persistence.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlayerHistoryModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long U_ID;
     @JsonProperty("steam_id")
     private String STEAM_ID;
@@ -28,6 +28,4 @@ public class PlayerHistoryModel {
     private int RATING;
     @JsonProperty("won")
     private String WIN_STATEMENT;
-    private String MATCH_UI;
-
 }

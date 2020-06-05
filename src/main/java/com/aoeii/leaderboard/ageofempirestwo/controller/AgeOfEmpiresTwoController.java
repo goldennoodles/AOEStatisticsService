@@ -91,12 +91,9 @@ public class AgeOfEmpiresTwoController {
             }
 
             //Iterate through the list and save to database.
-            for (PlayerHistoryModel playerHistoryModel : playerHistoryModelList){
-                for(MatchHistoryModel matchHistoryModel : matchHistoryModelList){
-                    matchRespository.save(matchHistoryModel);
-                }
-                playerRepository.save(playerHistoryModel);
-            }
+            playerRepository.saveAll(playerHistoryModelList);
+            matchRespository.saveAll(matchHistoryModelList);
+
             //Return output back up the the user with an OK statement!
             return new ResponseEntity<>("Data Saved... Access H2 Console to view", HttpStatus.OK);
 

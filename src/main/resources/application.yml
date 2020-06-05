@@ -30,3 +30,9 @@ tmp:
     hayden: 76561198080895557
     rus: 76561198048932097
 
+  # Note to self for H2 enq.
+  #select  *
+  #from MATCHDATA as match
+  #join PLAYERDATA as player
+  #WHERE MATCH_UUID = 'eab673eb-c4e6-3849-94b3-fdea7b4e47a3'
+
