@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -28,4 +29,13 @@ public class MatchHistoryModel {
     private String MATCH_UUID;
     @JsonProperty("started")
     private String DATE_UNIX;
+    @JsonProperty("steam_id")
+    private String STEAM_ID;
+
+    //Player Nested Array
+    private String NAME;
+    private String COUNTRY;
+    private String RATING;
+    private String WIN_STATEMENT;
+
 }

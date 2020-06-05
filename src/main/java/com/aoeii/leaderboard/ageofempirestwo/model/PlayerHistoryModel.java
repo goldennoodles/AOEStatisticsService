@@ -11,21 +11,21 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Component
-@Entity
-@Table(name = "playerdata")
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@Entity
+//@Table(name = "playerdata")
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class PlayerHistoryModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long U_ID;
-    @JsonProperty("steam_id")
-    private String STEAM_ID;
-    @JsonProperty("name")
-    private String NAME;
-    @JsonProperty("country")
-    private String COUNTRY;
-    @JsonProperty("rating")
-    private int RATING;
-    @JsonProperty("won")
-    private String WIN_STATEMENT;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long U_ID;
+//    @JsonProperty("steam_id")
+//    private String STEAM_ID;
+//    @JsonProperty("name")
+//    private String NAME;
+//    @JsonProperty("country")
+//    private String COUNTRY;
+//    @JsonProperty("rating")
+//    private int RATING;
+//    @JsonProperty("won")
+//    private String WIN_STATEMENT;
 }

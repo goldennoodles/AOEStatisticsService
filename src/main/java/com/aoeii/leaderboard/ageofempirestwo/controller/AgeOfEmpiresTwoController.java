@@ -1,16 +1,14 @@
 package com.aoeii.leaderboard.ageofempirestwo.controller;
 
 import com.aoeii.leaderboard.ageofempirestwo.model.MatchHistoryModel;
-import com.aoeii.leaderboard.ageofempirestwo.model.PlayerHistoryModel;
 import com.aoeii.leaderboard.ageofempirestwo.properties.ApplicationProperties;
 import com.aoeii.leaderboard.ageofempirestwo.repo.AOEMatchRespository;
-import com.aoeii.leaderboard.ageofempirestwo.repo.AOEPlayerRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -44,8 +41,6 @@ public class AgeOfEmpiresTwoController {
     ObjectMapper objectMapper;
 
     @Autowired
-    AOEPlayerRepository playerRepository;
-    @Autowired
     AOEMatchRespository matchRespository;
 
     /**
@@ -56,6 +51,7 @@ public class AgeOfEmpiresTwoController {
      */
     @GetMapping("/get-data")
     public ResponseEntity<Object> GetAOEData (@RequestParam String user) throws JsonProcessingException {
+        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         try {
             // Assign the user
             properties.setAOE_USER(user);
@@ -74,24 +70,17 @@ public class AgeOfEmpiresTwoController {
             Object parsedResults = Configuration.defaultConfiguration().jsonProvider().parse(loadedString.getBody());
 
             //Read the Json and Filter
-            List<JSONArray> playerStats = JsonPath.read(parsedResults, "$..players");
             List<MatchHistoryModel> matchHistoryModels = objectMapper.readValue(loadedString.getBody(), new TypeReference<List<MatchHistoryModel>>(){});
 
             //Create LocalLists to hold accessible Model Data.
-            List<PlayerHistoryModel> playerHistoryModelList = new ArrayList<>();
             List<MatchHistoryModel> matchHistoryModelList = new ArrayList<>();
 
             // Do the mapping and adding to LocalLists.
-            for (JSONArray model : playerStats) {
-                PlayerHistoryModel[] phm = objectMapper.readValue(model.toJSONString(), PlayerHistoryModel[].class);
-                playerHistoryModelList.addAll(Arrays.asList(phm));
-            }
             for (MatchHistoryModel model : matchHistoryModels){
                 matchHistoryModelList.addAll(Arrays.asList(model));
             }
 
             //Iterate through the list and save to database.
-            playerRepository.saveAll(playerHistoryModelList);
             matchRespository.saveAll(matchHistoryModelList);
 
             //Return output back up the the user with an OK statement!
