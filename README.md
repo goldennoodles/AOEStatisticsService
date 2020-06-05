@@ -7,9 +7,9 @@ What does it do?
 ### Current
 - [x] Returns match based statistics will all information populated
 - [x] Steam ID user specific
-- [ ] Store into H2 Database
+- [x] Store into H2 Database
 - [ ] MultiUser inputs
-- [ ] Cleaner Looking Json
+- [x] Cleaner Looking Json
 - [ ] Some UI maaaaaaybe
 
 ### How to use?
